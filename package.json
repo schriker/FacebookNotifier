@@ -1,0 +1,17 @@
+{
+  "name": "notifier",
+  "version": "1.0.0",
+  "description": "",
+  "main": "app.js",
+  "scripts": {
+    "start": "node app.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "axios": "^0.19.2",
+    "googleapis": "^48.0.0",
+    "moment": "^2.24.0"
+  }
+}
