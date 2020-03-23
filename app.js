@@ -33,13 +33,14 @@ class FacebookNotifier {
   }
 
   startDownload(videoID) {
-    const comand = exec(`streamlink -o "${videoID}.ts" https://www.facebook.com/${this.facebookId}/videos/${videoID} worst`, (error, stdout, stderr) => {
+    const comand = exec(`streamlink -o "${videoID}.ts" https://www.facebook.com/${this.facebookId}/videos/${videoID} best`, (error, stdout, stderr) => {
       if (error) {
         console.error(`exec error: ${error}`)
         return
       }
       console.log(stdout)
       console.error(stderr)
+      this.listener()
       this.stopDownload(videoID)
     })
     comand.stdout.on('data', (data) => {
@@ -62,7 +63,6 @@ class FacebookNotifier {
       await youtubeUpload(comand.stdout, { facebookId: videoID })
       fs.unlinkSync(`${videoID}.ts`)
       console.log(`Video - ${videoID} - uploaded - ${new Date()}`)
-      this.listener()
     } catch (err) {
       console.log(err)
     }
