@@ -1,3 +1,4 @@
+const fs = require('fs')
 const axios = require('axios')
 const youtubeUpload = require('./youtube')
 const { exec, spawn } = require('child_process')
@@ -59,12 +60,12 @@ class FacebookNotifier {
 
     try {
       await youtubeUpload(comand.stdout, { facebookId: videoID })
-      this.listener()
+      fs.unlinkSync(`${videoID}.ts`)
       console.log(`Video - ${videoID} - uploaded - ${new Date()}`)
+      this.listener()
     } catch (err) {
       console.log(err)
     }
-    
   }
 }
 
