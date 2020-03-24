@@ -49,10 +49,10 @@ class FacebookNotifier {
   }
 
   async stopDownload(videoID) {
-    const comand = spawn('ffmpeg', ['-i', `${videoID}.ts`, '-f', 'matroska', 'pipe:1'])
+    const comand = spawn('ffmpeg', ['-i', `${videoID}.ts`, '-c', 'copy', '-f', 'flv', 'pipe:1'])
 
     comand.stderr.on('data', (data) => {
-      console.log(`stderr: ${data}`)
+      console.log(`stderr: ${data.toString()}`)
     })
 
     comand.on('close', (code) => {
