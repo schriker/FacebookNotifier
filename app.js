@@ -32,20 +32,46 @@ class FacebookNotifier {
     }, 1500)
   }
 
-  startDownload(videoID) {
-    const comand = exec(`streamlink -o "${videoID}.ts" https://www.facebook.com/${this.facebookId}/videos/${videoID} best`, (error, stdout, stderr) => {
-      if (error) {
-        console.error(`exec error: ${error}`)
-        return
+  async startDownload(videoID) {
+    const streamlink = spawn('streamlink', [`https://www.facebook.com/${this.facebookId}/videos/${videoID}`, 'best', '-O'])
+    const ffmpeg = spawn('ffmpeg', ['-i', 'pipe:0', '-c', 'copy', '-f', 'flv', 'pipe:1'])
+  
+    streamlink.stdout.on('data', (data) => {
+      ffmpeg.stdin.write(data);
+    });
+    
+    streamlink.stderr.on('data', (data) => {
+      console.error(`streamlink stderr: ${data}`);
+    });
+    
+    streamlink.on('close', (code) => {
+      if (code !== 0) {
+        console.log(`streamlink process exited with code ${code}`);
       }
-      console.log(stdout)
-      console.error(stderr)
-      this.listener()
-      this.stopDownload(videoID)
-    })
-    comand.stdout.on('data', (data) => {
-      console.log(data.toString())
-    })
+      ffmpeg.stdin.end();
+    });
+
+    // ffmpeg.stdout.on('data', (data) => {
+    //   console.log(data.toString());
+    // });
+    
+    ffmpeg.stderr.on('data', (data) => {
+      console.error(`ffmpeg stderr: ${data}`);
+    });
+    
+    ffmpeg.on('close', (code) => {
+      if (code !== 0) {
+        console.log(`ffmpeg process exited with code ${code}`);
+      }
+    });
+
+    // try {
+    //   await youtubeUpload(ffmpeg.stdout, { facebookId: videoID })
+    //   fs.unlinkSync(`${videoID}.ts`)
+    //   console.log(`Video - ${videoID} - uploaded - ${new Date()}`)
+    // } catch (err) {
+    //   console.log(err)
+    // }
   }
 
   async stopDownload(videoID) {
