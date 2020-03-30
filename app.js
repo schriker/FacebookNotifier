@@ -8,12 +8,11 @@ class Facebook extends EventEmitter {
     super()
     this.facebookId = facebookId
     this.isOnline = null
-    this.error = false
     this.listener()
   }
 
   listener() {
-    const interval = setInterval(async () => {
+    setInterval(async () => {
       const facebookResponse = await axios.get(
         `https://www.facebook.com/pages/videos/search/?page_id=${this.facebookId}&__a`
       )
@@ -28,28 +27,10 @@ class Facebook extends EventEmitter {
         this.isOnline = isOnline
         if (this.isOnline) {
           console.log(`Facebook: [Online] - ${videoID} - ${new Date()}`)
-          if (!this.error) {
-            this.emit('online')
-            this.startDownload(videoID)
-            clearInterval(interval)
-          }
+          this.emit('online')
+          this.startDownload(videoID)
         } else if (!this.isOnline) {
           console.log(`Facebook: [Offline] - ${videoID} - ${new Date()}`)
-          if (this.error) {
-            this.emit('uploaded', {
-              data: {
-                id: '',
-                snippet: {
-                  thumbnails: {
-                    medium: {
-                      url: ''
-                    }
-                  }
-                }
-              }
-            })
-          }
-          this.error = false
           this.emit('offline')
         }
       }
@@ -59,7 +40,7 @@ class Facebook extends EventEmitter {
   async startDownload(videoID) {
     const streamlink = spawn('streamlink', [
       `https://www.facebook.com/${this.facebookId}/videos/${videoID}`,
-      'best',
+      '1080p_alt',
       '-O'
     ])
     const ffmpeg = spawn('ffmpeg', [
@@ -100,6 +81,6 @@ class Facebook extends EventEmitter {
   }
 }
 
-new Facebook('95475020353')
+new Facebook('369632869905557')
 
 module.exports = Facebook
